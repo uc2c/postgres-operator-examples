@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: safety-advisor-pg-init-script-config
+data:
+  init.sql: |
+    -- Grant read-only access to existing and future tables
+    GRANT CONNECT ON DATABASE safety_advisor TO appsmith;
+    GRANT USAGE ON SCHEMA public TO appsmith;
+    GRANT SELECT ON ALL TABLES IN SCHEMA public TO appsmith;
+
+    -- Optional: write access to selected tables
+    -- GRANT INSERT, UPDATE ON important_table TO appsmith;
+
+    -- Ensure all future tables are readable
+    ALTER DEFAULT PRIVILEGES IN SCHEMA public
+      GRANT SELECT ON TABLES TO appsmith;

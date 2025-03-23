@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: safety-advisor-pg-init-script-job
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: psql
+          image: postgres:16
+          command: ["sh", "-c"]
+          args:
+            - |
+              echo "Waiting for DB...";
+              until pg_isready -h $PGHOST -p $PGPORT -U $PGUSER -d safety_advisor; do sleep 2; done;
+              echo "Running init.sql...";
+              psql -h $PGHOST -p $PGPORT -U $PGUSER -d safety_advisor -f /sql/init.sql
+          env:
+            - name: PGHOST
+              valueFrom:
+                secretKeyRef:
+                  name:  safety-advisor-pg-pguser-postgres
+                  key: host
+            - name: PGPORT
+              valueFrom:
+                secretKeyRef:
+                  name:  safety-advisor-pg-pguser-postgres
+                  key: port
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name:  safety-advisor-pg-pguser-postgres
+                  key: user
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name:  safety-advisor-pg-pguser-postgres
+                  key: password
+          volumeMounts:
+            - name: sql-script
+              mountPath: /sql
+      volumes:
+        - name: sql-script
+          configMap:
+            name: safety-advisor-pg-init-script-config
+
