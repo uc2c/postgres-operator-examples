@@ -32,8 +32,8 @@ spec:
   backups:
     pgbackrest:
       configuration:
-      - secret:
-          name: pgo-s3-creds
+        - secret:
+            name: pgo-s3-creds
       global:
         repo1-path: /pgbackrest/safety-advisor-pg-staging/repo1
         repo1-retention-full: "14"
@@ -47,4 +47,3 @@ spec:
             bucket: uc2civo
             endpoint: s3.amazonaws.com
             region: us-east-2
-
